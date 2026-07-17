@@ -1,0 +1,61 @@
+@import '@fontsource-variable/source-sans-3';
+@import '@fontsource/fraunces/600.css';
+@import '@fontsource/fraunces/700.css';
+@import 'tailwindcss';
+
+@theme {
+  --color-brand-coral: #e85d4c;
+  --color-brand-coral-dark: #c94a3b;
+  --color-brand-coral-soft: #fff1ee;
+  --color-brand-teal: #1f6f6a;
+  --color-brand-teal-dark: #165550;
+  --color-brand-sand: #f7f1e8;
+  --color-brand-sand-deep: #ebe2d4;
+  --color-brand-ink: #1c2421;
+  --color-brand-muted: #5c6b66;
+  --color-brand-line: #d9d0c4;
+  --color-brand-cream: #fbf8f3;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-brand-cream text-brand-ink antialiased;
+  font-family: 'Source Sans 3 Variable', 'Source Sans 3', system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-coral);
+  outline-offset: 2px;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s ease-out both;
+}
+
+.animate-fade-up-delay {
+  animation: fade-up 0.7s ease-out 0.12s both;
+}
+
+.pet-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.pet-card:hover {
+  transform: translateY(-2px);
+}

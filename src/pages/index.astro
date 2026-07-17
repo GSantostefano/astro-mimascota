@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PetCard from '../components/PetCard.astro';
+import ButtonLink from '../components/ui/ButtonLink.astro';
+import { SITE } from '../config/site';
+import { loadFeaturedPets } from '../lib/catalog';
+
+export const prerender = false;
+
+const featured = await loadFeaturedPets();
+---
+
+<BaseLayout title={`${SITE.name} | Mascotas perdidas y encontradas`}>
+  <section class="relative min-h-[78vh] overflow-hidden bg-brand-ink text-white">
+    <div
+      class="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_20%,rgba(232,93,76,0.35),transparent_50%),radial-gradient(ellipse_at_80%_60%,rgba(31,111,106,0.4),transparent_45%),linear-gradient(160deg,#1c2421_0%,#243530_55%,#1a2e2b_100%)]"
+      aria-hidden="true"
+    ></div>
+    <div
+      class="absolute inset-0 opacity-30"
+      style="background-image: url('/assets/hero-pattern.svg'); background-size: 420px;"
+      aria-hidden="true"
+    ></div>
+    <div class="relative mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-end px-5 pb-16 pt-24 md:justify-center md:pb-24 md:pt-20">
+      <p class="animate-fade-up font-display text-4xl font-bold tracking-tight text-white md:text-6xl lg:text-7xl">
+        {SITE.name}
+      </p>
+      <h1 class="animate-fade-up-delay mt-4 max-w-2xl text-xl font-medium leading-snug text-white/90 md:text-2xl">
+        Reencontrá a tu compañero. Publicá o buscá avisos de mascotas perdidas y encontradas cerca tuyo.
+      </h1>
+      <p class="animate-fade-up-delay mt-3 max-w-xl text-base text-white/70">
+        Filtrá por ciudad, zona y tipo. Cada aviso conecta a quien busca con quien encontró.
+      </p>
+      <div class="animate-fade-up-delay mt-8 flex flex-wrap gap-3">
+        <ButtonLink href="/mascotas" label="Buscar mascotas" />
+        <a
+          href="/publicar"
+          class="inline-flex items-center rounded-lg border border-white/35 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white no-underline backdrop-blur hover:bg-white/20"
+        >
+          Publicar aviso
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-5 py-14">
+    <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-wide text-brand-coral">Avisos recientes</p>
+        <h2 class="font-display mt-1 text-3xl font-bold text-brand-ink">Destacados en {SITE.city}</h2>
+      </div>
+      <ButtonLink href="/mascotas" label="Ver todos" variant="secondary" />
+    </div>
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {featured.map((pet) => <PetCard pet={pet} />)}
+    </div>
+  </section>
+
+  <section class="bg-brand-sand py-14">
+    <div class="mx-auto max-w-6xl px-5 md:flex md:items-center md:justify-between md:gap-8">
+      <div>
+        <h2 class="font-display text-2xl font-bold text-brand-ink">¿Encontraste o perdiste una mascota?</h2>
+        <p class="mt-2 max-w-xl text-brand-muted">
+          Enviá el aviso por WhatsApp con foto y datos. Lo revisamos y lo publicamos en el catálogo.
+        </p>
+      </div>
+      <div class="mt-6 md:mt-0">
+        <ButtonLink href="/publicar" label="Publicar ahora" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,145 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ListingImage from '../../components/ListingImage.astro';
+import ButtonLink from '../../components/ui/ButtonLink.astro';
+import { SITE } from '../../config/site';
+import { loadPetBySlug } from '../../lib/catalog';
+import {
+  formatLastSeen,
+  formatPetMeta,
+  getPetGalleryImages,
+  kindLabel,
+  sexLabel,
+  sizeLabel,
+  statusLabel,
+} from '../../lib/pets';
+import { buildPetWhatsAppLink } from '../../lib/whatsapp';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+const pet = await loadPetBySlug(slug!);
+
+if (!pet) {
+  return Astro.redirect('/mascotas');
+}
+
+const gallery = getPetGalleryImages(pet);
+const wspHref = buildPetWhatsAppLink(pet);
+const statusTone =
+  pet.status === 'perdida'
+    ? 'bg-brand-coral text-white'
+    : pet.status === 'encontrada'
+      ? 'bg-brand-teal text-white'
+      : 'bg-brand-sand-deep text-brand-ink';
+---
+
+<BaseLayout
+  title={`${pet.title} | ${SITE.name}`}
+  description={pet.description}
+  ogImage={pet.heroImage}
+>
+  <div class="mx-auto max-w-6xl px-5 py-8">
+    <nav class="mb-6 text-sm text-brand-muted" aria-label="Breadcrumb">
+      <a href="/mascotas" class="no-underline hover:text-brand-ink">Mascotas</a>
+      <span class="mx-2">/</span>
+      <span class="text-brand-ink">{pet.name}</span>
+    </nav>
+
+    <div class="grid gap-8 lg:grid-cols-2">
+      <div>
+        <ListingImage
+          src={gallery[0]}
+          alt={pet.title}
+          width={900}
+          height={700}
+          loading="eager"
+          class="w-full rounded-2xl border border-brand-line bg-brand-sand object-cover"
+        />
+        {
+          gallery.length > 1 && (
+            <div class="mt-3 grid grid-cols-3 gap-2">
+              {gallery.slice(1).map((src) => (
+                <ListingImage
+                  src={src}
+                  alt={`${pet.title} — foto adicional`}
+                  width={300}
+                  height={200}
+                  class="h-24 w-full rounded-lg border border-brand-line object-cover"
+                />
+              ))}
+            </div>
+          )
+        }
+      </div>
+
+      <div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class={`rounded-md px-2.5 py-0.5 text-xs font-semibold uppercase ${statusTone}`}>
+            {statusLabel(pet.status)}
+          </span>
+          <span class="text-sm text-brand-muted">Ref. {pet.refCode}</span>
+        </div>
+        <h1 class="font-display mt-3 text-3xl font-bold text-brand-ink md:text-4xl">{pet.title}</h1>
+        <p class="mt-2 text-brand-muted">{formatPetMeta(pet)}</p>
+
+        <dl class="mt-6 grid grid-cols-2 gap-3 text-sm">
+          <div class="rounded-xl border border-brand-line bg-white p-3">
+            <dt class="text-brand-muted">Tipo</dt>
+            <dd class="font-semibold text-brand-ink">{kindLabel(pet.kind)}{pet.breed ? ` · ${pet.breed}` : ''}</dd>
+          </div>
+          <div class="rounded-xl border border-brand-line bg-white p-3">
+            <dt class="text-brand-muted">Sexo / tamaño</dt>
+            <dd class="font-semibold text-brand-ink">{sexLabel(pet.sex)} · {sizeLabel(pet.size)}</dd>
+          </div>
+          <div class="rounded-xl border border-brand-line bg-white p-3">
+            <dt class="text-brand-muted">Color</dt>
+            <dd class="font-semibold text-brand-ink">{pet.color}</dd>
+          </div>
+          <div class="rounded-xl border border-brand-line bg-white p-3">
+            <dt class="text-brand-muted">Edad aprox.</dt>
+            <dd class="font-semibold text-brand-ink">{pet.ageApprox || '—'}</dd>
+          </div>
+          <div class="col-span-2 rounded-xl border border-brand-line bg-white p-3">
+            <dt class="text-brand-muted">Última vez vista</dt>
+            <dd class="font-semibold text-brand-ink">
+              {formatLastSeen(pet.lastSeenDate)} · {pet.lastSeenPlace} ({pet.zone}, {pet.city})
+            </dd>
+          </div>
+        </dl>
+
+        <p class="mt-6 leading-relaxed text-brand-ink">{pet.description}</p>
+
+        {
+          pet.characteristics.length > 0 && (
+            <ul class="mt-4 flex flex-wrap gap-2">
+              {pet.characteristics.map((item) => (
+                <li class="rounded-md bg-brand-sand px-3 py-1 text-sm text-brand-ink">{item}</li>
+              ))}
+            </ul>
+          )
+        }
+
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a
+            href={wspHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center rounded-lg bg-brand-coral px-5 py-2.5 text-sm font-semibold text-white no-underline hover:bg-brand-coral-dark"
+          >
+            Contactar por WhatsApp
+          </a>
+          <ButtonLink
+            href={`/contacto?pet=${pet.slug}&title=${encodeURIComponent(pet.title)}`}
+            label="Escribir desde contacto"
+            variant="secondary"
+          />
+        </div>
+        <p class="mt-4 text-sm text-brand-muted">
+          Contacto del aviso: <span class="font-medium text-brand-ink">{pet.contactName}</span>
+          {pet.contactPhoneDisplay ? ` · ${pet.contactPhoneDisplay}` : ''}
+        </p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

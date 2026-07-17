@@ -1,0 +1,86 @@
+---
+import ListingImage from './ListingImage.astro';
+import type { Pet } from '../data/pets';
+import {
+  buildSearchBlob,
+  formatLastSeen,
+  formatPetMeta,
+  kindLabel,
+  statusLabel,
+} from '../lib/pets';
+import { buildPetWhatsAppLink } from '../lib/whatsapp';
+
+interface Props {
+  pet: Pet;
+  filterIndex?: number;
+}
+
+const { pet, filterIndex } = Astro.props;
+const wspHref = buildPetWhatsAppLink(pet);
+
+const statusTone =
+  pet.status === 'perdida'
+    ? 'bg-brand-coral text-white'
+    : pet.status === 'encontrada'
+      ? 'bg-brand-teal text-white'
+      : 'bg-brand-sand-deep text-brand-ink';
+---
+
+<article
+  class="pet-card overflow-hidden rounded-2xl border border-brand-line bg-white shadow-sm hover:shadow-md"
+  data-index={filterIndex}
+  data-status={pet.status}
+  data-kind={pet.kind}
+  data-city={pet.city}
+  data-zone={pet.zone}
+  data-size={pet.size}
+  data-sex={pet.sex}
+  data-date={pet.lastSeenDate}
+  data-search={buildSearchBlob(pet)}
+>
+  <a href={`/mascotas/${pet.slug}`} class="block no-underline">
+    <ListingImage
+      src={pet.heroImage}
+      alt={pet.title}
+      width={640}
+      height={380}
+      loading="lazy"
+      class="h-52 w-full bg-brand-sand object-cover"
+    />
+  </a>
+  <div class="p-5">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class={`rounded-md px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide ${statusTone}`}>
+        {statusLabel(pet.status)}
+      </span>
+      <span class="text-xs font-medium text-brand-muted">{kindLabel(pet.kind)}</span>
+    </div>
+    <h3 class="mt-2 font-display text-lg font-bold text-brand-ink">
+      <a href={`/mascotas/${pet.slug}`} class="no-underline hover:text-brand-teal">
+        {pet.title}
+      </a>
+    </h3>
+    <p class="mt-1 text-sm text-brand-muted">
+      {formatPetMeta(pet)}
+    </p>
+    <p class="mt-2 text-sm text-brand-muted">
+      Vista por última vez: {formatLastSeen(pet.lastSeenDate)}
+    </p>
+    <div class="mt-4 flex flex-wrap gap-2">
+      <a
+        href={`/mascotas/${pet.slug}`}
+        class="inline-flex items-center rounded-lg bg-brand-ink px-4 py-2 text-sm font-semibold text-white no-underline hover:bg-brand-teal"
+      >
+        Ver aviso
+      </a>
+      <a
+        href={wspHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center rounded-lg border border-brand-line bg-brand-cream px-4 py-2 text-sm font-semibold text-brand-ink no-underline hover:bg-brand-coral-soft"
+      >
+        Contactar
+      </a>
+    </div>
+  </div>
+</article>

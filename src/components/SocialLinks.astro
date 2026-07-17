@@ -1,0 +1,28 @@
+---
+import { SITE } from '../config/site';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<div class={`flex flex-wrap gap-3 text-sm ${className}`}>
+  <a
+    href={SITE.instagramUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="text-brand-muted no-underline hover:text-brand-ink"
+  >
+    Instagram
+  </a>
+  <a
+    href={SITE.facebookUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="text-brand-muted no-underline hover:text-brand-ink"
+  >
+    Facebook
+  </a>
+</div>

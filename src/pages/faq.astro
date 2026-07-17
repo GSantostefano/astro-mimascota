@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../config/site';
+
+const faqs = [
+  {
+    q: '¿Cómo publico un aviso?',
+    a: 'Andá a Publicar, completá el formulario y enviá el mensaje por WhatsApp. Revisamos los datos y lo sumamos al catálogo.',
+  },
+  {
+    q: '¿El aviso aparece al instante en el sitio?',
+    a: 'No. En esta versión el sitio es estático: alguien del equipo carga el aviso después de recibirlo por WhatsApp.',
+  },
+  {
+    q: '¿Puedo buscar sin registrarme?',
+    a: 'Sí. El catálogo es público. Podés filtrar por estado, tipo, ciudad, zona y más.',
+  },
+  {
+    q: '¿Cómo contacto al dueño o a quien encontró la mascota?',
+    a: 'En cada ficha hay un botón de WhatsApp con un mensaje prearmado que incluye la referencia del aviso.',
+  },
+  {
+    q: '¿Qué hago si ya encontré a mi mascota?',
+    a: 'Escribinos por WhatsApp o Contacto indicando la referencia (ej. MM-001) para marcar el aviso como reunida.',
+  },
+];
+---
+
+<BaseLayout title={`FAQ | ${SITE.name}`} description="Preguntas frecuentes sobre Mi Mascota.">
+  <section class="bg-brand-ink px-5 py-12 text-white">
+    <div class="mx-auto max-w-6xl">
+      <h1 class="font-display text-3xl font-bold">Preguntas frecuentes</h1>
+      <p class="mt-2 text-white/75">Respuestas cortas sobre cómo usar el sitio.</p>
+    </div>
+  </section>
+
+  <div class="mx-auto max-w-3xl space-y-3 px-5 py-12">
+    {
+      faqs.map((item) => (
+        <details class="group rounded-2xl border border-brand-line bg-white p-5 open:shadow-sm">
+          <summary class="cursor-pointer list-none font-semibold text-brand-ink marker:content-none">
+            <span class="flex items-center justify-between gap-3">
+              {item.q}
+              <span class="text-brand-coral transition group-open:rotate-45">+</span>
+            </span>
+          </summary>
+          <p class="mt-3 text-sm leading-relaxed text-brand-muted">{item.a}</p>
+        </details>
+      ))
+    }
+  </div>
+</BaseLayout>

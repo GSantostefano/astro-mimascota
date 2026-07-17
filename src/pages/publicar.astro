@@ -1,0 +1,307 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE, brandFull } from '../config/site';
+import { API_URL } from '../lib/api';
+
+export const prerender = false;
+
+const whatsappNumber = SITE.whatsappNumber;
+const apiUrl = API_URL;
+---
+
+<BaseLayout
+  title={`Publicar aviso | ${SITE.name}`}
+  description="Publicá un aviso de mascota perdida o encontrada. Se guarda en la base de datos y también podés avisar por WhatsApp."
+>
+  <section class="bg-brand-ink px-5 py-12 text-white">
+    <div class="mx-auto max-w-6xl">
+      <h1 class="font-display text-3xl font-bold">Publicar aviso</h1>
+      <p class="mt-2 max-w-2xl text-white/75">
+        Completá los datos para guardar el aviso en el catálogo. Opcionalmente también podés enviarlo por WhatsApp.
+      </p>
+    </div>
+  </section>
+
+  <div class="mx-auto max-w-2xl px-5 py-12">
+    <p class="mb-6 rounded-xl border border-brand-line bg-brand-sand p-4 text-sm text-brand-muted">
+      El aviso se guarda en la API (`POST /api/pets`). Si la API no está disponible, te ofrecemos abrir WhatsApp como respaldo.
+    </p>
+
+    <form id="publish-form" class="space-y-4 rounded-2xl border border-brand-line bg-white p-6 shadow-sm" novalidate>
+      <input
+        type="text"
+        name="website"
+        tabindex="-1"
+        autocomplete="off"
+        class="absolute left-[-9999px] h-0 w-0 opacity-0"
+        aria-hidden="true"
+      />
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm font-medium text-brand-muted">
+          Estado *
+          <select name="status" required class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink">
+            <option value="perdida">Perdida</option>
+            <option value="encontrada">Encontrada</option>
+          </select>
+        </label>
+        <label class="block text-sm font-medium text-brand-muted">
+          Tipo *
+          <select name="kind" required class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink">
+            <option value="perro">Perro</option>
+            <option value="gato">Gato</option>
+            <option value="otro">Otro</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="block text-sm font-medium text-brand-muted">
+        Nombre (si se conoce)
+        <input name="name" type="text" class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" />
+      </label>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm font-medium text-brand-muted">
+          Raza
+          <input name="breed" type="text" class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" />
+        </label>
+        <label class="block text-sm font-medium text-brand-muted">
+          Color *
+          <input name="color" type="text" required class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" />
+        </label>
+        <label class="block text-sm font-medium text-brand-muted">
+          Sexo *
+          <select name="sex" required class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink">
+            <option value="macho">Macho</option>
+            <option value="hembra">Hembra</option>
+            <option value="desconocido">No especificado</option>
+          </select>
+        </label>
+        <label class="block text-sm font-medium text-brand-muted">
+          Tamaño *
+          <select name="size" required class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink">
+            <option value="pequeño">Pequeño</option>
+            <option value="mediano">Mediano</option>
+            <option value="grande">Grande</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm font-medium text-brand-muted">
+          Ciudad *
+          <input name="city" type="text" required value={SITE.city} class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" />
+        </label>
+        <label class="block text-sm font-medium text-brand-muted">
+          Zona / barrio *
+          <input name="zone" type="text" required class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" />
+        </label>
+        <label class="block text-sm font-medium text-brand-muted sm:col-span-2">
+          Lugar donde se vio *
+          <input name="lastSeenPlace" type="text" required class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" />
+        </label>
+        <label class="block text-sm font-medium text-brand-muted">
+          Fecha *
+          <input name="lastSeenDate" type="date" required class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" />
+        </label>
+      </div>
+
+      <label class="block text-sm font-medium text-brand-muted">
+        Descripción *
+        <textarea name="description" required rows="4" class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" placeholder="Contá qué pasó, cómo es, cómo se comporta…"></textarea>
+      </label>
+
+      <label class="block text-sm font-medium text-brand-muted">
+        Características (collar, chip, marcas…)
+        <input name="characteristics" type="text" class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" />
+      </label>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm font-medium text-brand-muted">
+          Tu nombre *
+          <input name="contactName" type="text" required class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" />
+        </label>
+        <label class="block text-sm font-medium text-brand-muted">
+          Teléfono *
+          <input name="contactPhone" type="tel" required class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" />
+        </label>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <button type="submit" class="rounded-lg bg-brand-coral px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-coral-dark">
+          Guardar en el catálogo
+        </button>
+        <button
+          type="button"
+          id="whatsapp-fallback"
+          class="rounded-lg border border-brand-line bg-brand-cream px-5 py-2.5 text-sm font-semibold text-brand-ink hover:bg-brand-sand"
+        >
+          Solo WhatsApp
+        </button>
+      </div>
+    </form>
+
+    <p id="form-message" class="mt-4 hidden rounded-lg p-3 text-sm" role="status"></p>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ whatsappNumber, brandName: brandFull, apiUrl }}>
+  const form = document.querySelector('#publish-form');
+  const message = document.querySelector('#form-message');
+  const wspBtn = document.querySelector('#whatsapp-fallback');
+  const submitBtn = form?.querySelector('button[type="submit"]');
+  let saving = false;
+
+  function showMessage(text, type) {
+    if (!(message instanceof HTMLElement)) return;
+    message.textContent = text;
+    message.classList.remove('hidden', 'bg-brand-coral-soft', 'bg-brand-sand', 'text-brand-ink');
+    message.classList.add(type === 'error' ? 'bg-brand-coral-soft' : 'bg-brand-sand', 'text-brand-ink');
+  }
+
+  function readForm() {
+    if (!(form instanceof HTMLFormElement)) return null;
+    const data = new FormData(form);
+    const website = (data.get('website') || '').toString().trim();
+    if (website) return null;
+
+    const required = [
+      'status',
+      'kind',
+      'color',
+      'sex',
+      'size',
+      'city',
+      'zone',
+      'lastSeenPlace',
+      'lastSeenDate',
+      'description',
+      'contactName',
+      'contactPhone',
+    ];
+    for (const key of required) {
+      if (!(data.get(key) || '').toString().trim()) {
+        showMessage('Completá los campos obligatorios.', 'error');
+        return null;
+      }
+    }
+
+    const description = (data.get('description') || '').toString().trim();
+    if (description.length < 10) {
+      showMessage('La descripción debe tener al menos 10 caracteres.', 'error');
+      return null;
+    }
+
+    const name = (data.get('name') || '').toString().trim() || 'Sin nombre';
+    const kind = (data.get('kind') || '').toString();
+    const status = (data.get('status') || '').toString();
+    const zone = (data.get('zone') || '').toString();
+    const characteristicsRaw = (data.get('characteristics') || '').toString().trim();
+
+    return {
+      name,
+      status,
+      kind,
+      breed: (data.get('breed') || '').toString().trim() || null,
+      sex: (data.get('sex') || '').toString(),
+      size: (data.get('size') || '').toString(),
+      color: (data.get('color') || '').toString().trim(),
+      city: (data.get('city') || '').toString().trim(),
+      zone,
+      lastSeenPlace: (data.get('lastSeenPlace') || '').toString().trim(),
+      lastSeenDate: (data.get('lastSeenDate') || '').toString(),
+      description,
+      characteristics: characteristicsRaw
+        ? characteristicsRaw.split(',').map((item) => item.trim()).filter(Boolean)
+        : [],
+      contactName: (data.get('contactName') || '').toString().trim(),
+      contactPhoneDisplay: (data.get('contactPhone') || '').toString().trim(),
+      title: `${name} — ${kind} ${status} en ${zone}`,
+    };
+  }
+
+  function openWhatsApp(payload) {
+    const lines = [
+      `Hola ${brandName}, quiero publicar un aviso:`,
+      '',
+      `Estado: ${payload.status}`,
+      `Nombre: ${payload.name}`,
+      `Tipo: ${payload.kind}`,
+      `Raza: ${payload.breed || '—'}`,
+      `Sexo: ${payload.sex}`,
+      `Tamaño: ${payload.size}`,
+      `Color: ${payload.color}`,
+      `Ciudad: ${payload.city}`,
+      `Zona: ${payload.zone}`,
+      `Lugar: ${payload.lastSeenPlace}`,
+      `Fecha: ${payload.lastSeenDate}`,
+      `Descripción: ${payload.description}`,
+      `Características: ${Array.isArray(payload.characteristics) && payload.characteristics.length ? payload.characteristics.join(', ') : '—'}`,
+      '',
+      `Contacto: ${payload.contactName}`,
+      `Teléfono: ${payload.contactPhoneDisplay}`,
+    ];
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (saving) {
+      showMessage('Ya se está guardando, esperá un momento…', 'error');
+      return;
+    }
+
+    const payload = readForm();
+    if (!payload) return;
+
+    saving = true;
+    if (submitBtn instanceof HTMLButtonElement) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Guardando…';
+    }
+
+    try {
+      const res = await fetch(`${apiUrl}/api/pets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const detail = Array.isArray(json.details) && json.details[0]?.message
+          ? json.details[0].message
+          : null;
+        const msg = detail || json.message || `Error ${res.status}`;
+        if (String(msg).toLowerCase().includes('unique') || res.status === 409) {
+          throw new Error('Ese aviso ya existe o hay un conflicto de datos. Cambiá algún dato y reintentá.');
+        }
+        throw new Error(msg);
+      }
+      const ref = json.data?.refCode || '';
+      showMessage(`Aviso guardado${ref ? ` (${ref})` : ''}. Redirigiendo al catálogo…`, 'ok');
+      window.setTimeout(() => {
+        window.location.href = '/mascotas';
+      }, 700);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'No se pudo guardar';
+      const hint = msg.includes('Failed to fetch') || msg.includes('NetworkError')
+        ? ` No se pudo hablar con la API (${apiUrl}). ¿Está corriendo el back?`
+        : '';
+      showMessage(`${msg}.${hint} Podés usar “Solo WhatsApp” como respaldo.`, 'error');
+    } finally {
+      saving = false;
+      if (submitBtn instanceof HTMLButtonElement) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Guardar en el catálogo';
+      }
+    }
+  });
+
+  wspBtn?.addEventListener('click', () => {
+    const payload = readForm();
+    if (!payload) return;
+    openWhatsApp(payload);
+    showMessage('Te redirigimos a WhatsApp con el aviso armado.', 'ok');
+  });
+</script>

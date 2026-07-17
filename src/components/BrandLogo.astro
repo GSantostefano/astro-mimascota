@@ -1,0 +1,30 @@
+---
+import { SITE, brandFull } from '../config/site';
+
+interface Props {
+  size?: 'sm' | 'md';
+  showText?: boolean;
+}
+
+const { size = 'sm', showText = true } = Astro.props;
+const height = size === 'md' ? 56 : 40;
+---
+
+<a href="/" class="inline-flex items-center gap-3 no-underline" aria-label={brandFull}>
+  <img
+    src={SITE.logoSrc}
+    alt=""
+    width={height}
+    height={height}
+    class="rounded-full"
+    style={`height: ${height}px; width: ${height}px;`}
+  />
+  {
+    showText && (
+      <span class="leading-tight">
+        <span class="font-display block text-lg font-bold text-brand-ink md:text-xl">{SITE.name}</span>
+        <span class="block text-xs text-brand-muted">{SITE.subtitle}</span>
+      </span>
+    )
+  }
+</a>

@@ -1,0 +1,215 @@
+---
+import PetCard from '../../components/PetCard.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SITE } from '../../config/site';
+import { loadPets } from '../../lib/catalog';
+import { kindLabel, sizeLabel, statusLabel } from '../../lib/pets';
+
+export const prerender = false;
+
+const pets = await loadPets();
+const cities = [...new Set(pets.map((p) => p.city))].sort((a, b) => a.localeCompare(b, 'es'));
+const zones = [...new Set(pets.map((p) => p.zone))].sort((a, b) => a.localeCompare(b, 'es'));
+const kinds = [...new Set(pets.map((p) => p.kind))];
+const statuses = [...new Set(pets.map((p) => p.status))];
+const sizes = [...new Set(pets.map((p) => p.size))];
+const sexes = [...new Set(pets.map((p) => p.sex))];
+---
+
+<BaseLayout
+  title={`Mascotas perdidas y encontradas | ${SITE.name}`}
+  description={`Buscá avisos de mascotas perdidas y encontradas en ${SITE.city}. Filtrá por zona, tipo y estado.`}
+>
+  <section class="bg-brand-ink px-5 py-12 text-white">
+    <div class="mx-auto max-w-6xl">
+      <p class="text-sm font-semibold uppercase tracking-widest text-brand-coral">Catálogo</p>
+      <h1 class="font-display mt-2 text-3xl font-bold md:text-4xl">Mascotas en {SITE.city}</h1>
+      <p class="mt-3 max-w-2xl text-white/75">
+        Filtrá por estado, tipo, ciudad y zona. Cada tarjeta tiene contacto directo por WhatsApp.
+      </p>
+    </div>
+  </section>
+
+  <div class="mx-auto max-w-6xl px-5 py-8">
+    <section class="mb-6 rounded-2xl border border-brand-line bg-white p-4 shadow-sm">
+      <form id="filters-form" class="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <label class="text-sm text-brand-muted">
+          Estado
+          <select name="status" class="mt-1 w-full rounded-lg border border-brand-line bg-white px-3 py-2 text-brand-ink">
+            <option value="">Todos</option>
+            {statuses.map((status) => <option value={status}>{statusLabel(status)}</option>)}
+          </select>
+        </label>
+        <label class="text-sm text-brand-muted">
+          Tipo
+          <select name="kind" class="mt-1 w-full rounded-lg border border-brand-line bg-white px-3 py-2 text-brand-ink">
+            <option value="">Todos</option>
+            {kinds.map((kind) => <option value={kind}>{kindLabel(kind)}</option>)}
+          </select>
+        </label>
+        <label class="text-sm text-brand-muted">
+          Ciudad
+          <select name="city" class="mt-1 w-full rounded-lg border border-brand-line bg-white px-3 py-2 text-brand-ink">
+            <option value="">Todas</option>
+            {cities.map((city) => <option value={city}>{city}</option>)}
+          </select>
+        </label>
+        <label class="text-sm text-brand-muted">
+          Zona
+          <select name="zone" class="mt-1 w-full rounded-lg border border-brand-line bg-white px-3 py-2 text-brand-ink">
+            <option value="">Todas</option>
+            {zones.map((zone) => <option value={zone}>{zone}</option>)}
+          </select>
+        </label>
+        <label class="text-sm text-brand-muted">
+          Tamaño
+          <select name="size" class="mt-1 w-full rounded-lg border border-brand-line bg-white px-3 py-2 text-brand-ink">
+            <option value="">Todos</option>
+            {sizes.map((size) => <option value={size}>{sizeLabel(size)}</option>)}
+          </select>
+        </label>
+        <label class="text-sm text-brand-muted">
+          Sexo
+          <select name="sex" class="mt-1 w-full rounded-lg border border-brand-line bg-white px-3 py-2 text-brand-ink">
+            <option value="">Todos</option>
+            {sexes.map((sex) => (
+              <option value={sex}>{sex === 'desconocido' ? 'No especificado' : sex[0].toUpperCase() + sex.slice(1)}</option>
+            ))}
+          </select>
+        </label>
+        <label class="text-sm text-brand-muted md:col-span-2">
+          Buscar texto
+          <input
+            name="q"
+            type="search"
+            placeholder="Nombre, color, collar…"
+            class="mt-1 w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink"
+          />
+        </label>
+        <label class="text-sm text-brand-muted">
+          Orden
+          <select name="sort" class="mt-1 w-full rounded-lg border border-brand-line bg-white px-3 py-2 text-brand-ink">
+            <option value="relevance">Relevancia</option>
+            <option value="date_desc">Más recientes</option>
+            <option value="date_asc">Más antiguos</option>
+          </select>
+        </label>
+      </form>
+      <div class="mt-3 flex flex-wrap gap-3">
+        <button
+          id="clear-filters"
+          type="button"
+          class="rounded-lg border border-brand-line bg-brand-cream px-3 py-2 text-sm font-semibold text-brand-ink hover:bg-brand-coral-soft"
+        >
+          Limpiar filtros
+        </button>
+        <p id="results-count" class="self-center text-sm text-brand-muted" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section id="pets-grid" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {pets.map((pet, index) => (
+        <PetCard pet={pet} filterIndex={index} />
+      ))}
+    </section>
+
+    <p
+      id="empty-state"
+      class="mt-6 hidden rounded-xl border border-brand-line bg-brand-coral-soft p-5 text-brand-ink"
+      aria-live="polite"
+    >
+      No encontramos avisos con esos filtros. Probá ajustar los criterios o limpiar los filtros.
+    </p>
+  </div>
+</BaseLayout>
+
+<script>
+  const form = document.querySelector('#filters-form');
+  const clearBtn = document.querySelector('#clear-filters');
+  const cards = Array.from(document.querySelectorAll('.pet-card'));
+  const grid = document.querySelector('#pets-grid');
+  const emptyState = document.querySelector('#empty-state');
+  const resultsCount = document.querySelector('#results-count');
+
+  const getParams = () => new URLSearchParams(window.location.search);
+
+  function readFiltersFromForm() {
+    if (!form) return {};
+    const data = new FormData(form);
+    return {
+      status: (data.get('status') || '').toString(),
+      kind: (data.get('kind') || '').toString(),
+      city: (data.get('city') || '').toString(),
+      zone: (data.get('zone') || '').toString(),
+      size: (data.get('size') || '').toString(),
+      sex: (data.get('sex') || '').toString(),
+      q: (data.get('q') || '').toString().trim().toLowerCase(),
+      sort: (data.get('sort') || 'relevance').toString(),
+    };
+  }
+
+  function writeFiltersToUrl(filters) {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+      if (value && value !== 'relevance') params.set(key, value);
+    }
+    const url = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+    window.history.replaceState({}, '', url);
+  }
+
+  function loadFiltersFromUrl() {
+    if (!form) return;
+    const params = getParams();
+    for (const element of Array.from(form.elements)) {
+      if (!(element instanceof HTMLInputElement || element instanceof HTMLSelectElement)) continue;
+      const value = params.get(element.name);
+      if (value !== null) element.value = value;
+    }
+  }
+
+  function applyFilters() {
+    const filters = readFiltersFromForm();
+    writeFiltersToUrl(filters);
+
+    let visible = 0;
+    const sortedCards = [...cards];
+
+    sortedCards.sort((a, b) => {
+      const dateA = a.dataset.date || '';
+      const dateB = b.dataset.date || '';
+      if (filters.sort === 'date_desc') return dateB.localeCompare(dateA);
+      if (filters.sort === 'date_asc') return dateA.localeCompare(dateB);
+      return Number(a.dataset.index || 0) - Number(b.dataset.index || 0);
+    });
+
+    for (const card of sortedCards) {
+      const statusOk = !filters.status || card.dataset.status === filters.status;
+      const kindOk = !filters.kind || card.dataset.kind === filters.kind;
+      const cityOk = !filters.city || card.dataset.city === filters.city;
+      const zoneOk = !filters.zone || card.dataset.zone === filters.zone;
+      const sizeOk = !filters.size || card.dataset.size === filters.size;
+      const sexOk = !filters.sex || card.dataset.sex === filters.sex;
+      const searchOk = !filters.q || (card.dataset.search || '').includes(filters.q);
+      const isVisible = statusOk && kindOk && cityOk && zoneOk && sizeOk && sexOk && searchOk;
+      card.classList.toggle('hidden', !isVisible);
+      if (isVisible) {
+        visible += 1;
+        grid?.appendChild(card);
+      }
+    }
+
+    if (resultsCount) resultsCount.textContent = `${visible} avisos encontrados`;
+    emptyState?.classList.toggle('hidden', visible > 0);
+  }
+
+  clearBtn?.addEventListener('click', () => {
+    if (form instanceof HTMLFormElement) form.reset();
+    applyFilters();
+  });
+
+  form?.addEventListener('input', applyFilters);
+  form?.addEventListener('change', applyFilters);
+
+  loadFiltersFromUrl();
+  applyFilters();
+</script>

@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ButtonLink from '../components/ui/ButtonLink.astro';
+import { SITE } from '../config/site';
+---
+
+<BaseLayout
+  title={`Cómo funciona | ${SITE.name}`}
+  description="Así publicamos y buscamos avisos de mascotas perdidas y encontradas."
+>
+  <section class="bg-brand-ink px-5 py-12 text-white">
+    <div class="mx-auto max-w-6xl">
+      <h1 class="font-display text-3xl font-bold">Cómo funciona</h1>
+      <p class="mt-2 max-w-2xl text-white/75">
+        Un flujo simple: publicar, moderar y conectar a quien busca con quien encontró.
+      </p>
+    </div>
+  </section>
+
+  <div class="mx-auto max-w-3xl px-5 py-12">
+    <ol class="space-y-6">
+      {
+        SITE.howItWorks.map((step, index) => (
+          <li class="flex gap-4 rounded-2xl border border-brand-line bg-white p-5">
+            <span class="font-display flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-coral text-lg font-bold text-white">
+              {index + 1}
+            </span>
+            <p class="self-center text-brand-ink">{step}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="mt-10 flex flex-wrap gap-3">
+      <ButtonLink href="/publicar" label="Publicar aviso" />
+      <ButtonLink href="/mascotas" label="Buscar en el catálogo" variant="secondary" />
+    </div>
+  </div>
+</BaseLayout>

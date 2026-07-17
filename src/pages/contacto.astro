@@ -1,0 +1,141 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE, brandFull } from '../config/site';
+import { buildWhatsAppLink } from '../lib/whatsapp';
+
+const wspGeneral = buildWhatsAppLink(
+  `Hola ${brandFull}, quiero consultar por un aviso de mascota en ${SITE.city}.`,
+);
+const wspPublish = buildWhatsAppLink(
+  `Hola ${brandFull}, quiero publicar un aviso de mascota perdida o encontrada.`,
+);
+---
+
+<BaseLayout
+  title={`Contacto | ${SITE.name}`}
+  description={`Contactá a ${SITE.name} por WhatsApp para avisos de mascotas perdidas o encontradas.`}
+>
+  <section class="bg-brand-ink px-5 py-12 text-white">
+    <div class="mx-auto max-w-6xl">
+      <h1 class="font-display text-3xl font-bold">Contacto</h1>
+      <p class="mt-2 text-white/75">Escribinos por WhatsApp o usá el formulario: abre una conversación con tu mensaje.</p>
+    </div>
+  </section>
+
+  <div class="mx-auto max-w-2xl px-5 py-12">
+    <div class="mb-8 flex flex-wrap gap-3">
+      <a
+        href={wspGeneral}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex rounded-lg bg-brand-coral px-5 py-2.5 text-sm font-bold text-white no-underline hover:bg-brand-coral-dark"
+      >
+        WhatsApp — Consulta general
+      </a>
+      <a
+        href={wspPublish}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex rounded-lg border border-brand-line bg-white px-5 py-2.5 text-sm font-semibold text-brand-ink no-underline hover:bg-brand-sand"
+      >
+        Quiero publicar un aviso
+      </a>
+    </div>
+
+    <form id="contact-form" class="space-y-4 rounded-2xl border border-brand-line bg-white p-6 shadow-sm" novalidate>
+      <input
+        type="text"
+        name="website"
+        tabindex="-1"
+        autocomplete="off"
+        class="absolute left-[-9999px] h-0 w-0 opacity-0"
+        aria-hidden="true"
+      />
+      <input type="hidden" id="pet-slug" name="petSlug" />
+
+      <div>
+        <label for="nombre" class="mb-1 block text-sm font-medium text-brand-muted">Nombre</label>
+        <input id="nombre" name="nombre" type="text" required class="w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" />
+      </div>
+      <div>
+        <label for="email" class="mb-1 block text-sm font-medium text-brand-muted">Email</label>
+        <input id="email" name="email" type="email" required class="w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" />
+      </div>
+      <div>
+        <label for="telefono" class="mb-1 block text-sm font-medium text-brand-muted">Teléfono (opcional)</label>
+        <input id="telefono" name="telefono" type="tel" class="w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" />
+      </div>
+      <div>
+        <label for="mensaje" class="mb-1 block text-sm font-medium text-brand-muted">Mensaje</label>
+        <textarea id="mensaje" name="mensaje" required rows="5" class="w-full rounded-lg border border-brand-line px-3 py-2 text-brand-ink" placeholder="Contanos por qué aviso querés consultar o publicar…"></textarea>
+      </div>
+      <button type="submit" class="rounded-lg bg-brand-ink px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-teal">
+        Enviar por WhatsApp
+      </button>
+    </form>
+
+    <p id="form-message" class="mt-4 hidden rounded-lg p-3 text-sm" role="status"></p>
+    <p class="mt-4 text-xs text-brand-muted">
+      El formulario abre WhatsApp con tu mensaje. También podés escribir a{' '}
+      <a href={`mailto:${SITE.email}`} class="text-brand-ink underline-offset-2 hover:underline">
+        {SITE.email}
+      </a>
+      .
+    </p>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ whatsappNumber: SITE.whatsappNumber, brandName: brandFull }}>
+  const form = document.querySelector('#contact-form');
+  const message = document.querySelector('#form-message');
+  const petSlugInput = document.querySelector('#pet-slug');
+  const mensajeInput = document.querySelector('#mensaje');
+
+  const params = new URLSearchParams(window.location.search);
+  const petSlug = params.get('pet');
+  const petTitle = params.get('title');
+
+  if (petSlugInput instanceof HTMLInputElement && petSlug) {
+    petSlugInput.value = petSlug;
+  }
+  if (mensajeInput instanceof HTMLTextAreaElement && petTitle && !mensajeInput.value.trim()) {
+    mensajeInput.value = `Hola, vi el aviso: ${petTitle}. Quisiera más información o ayudar.`;
+  }
+
+  function showMessage(text, type) {
+    if (!(message instanceof HTMLElement)) return;
+    message.textContent = text;
+    message.classList.remove('hidden');
+    message.className = `mt-4 rounded-lg p-3 text-sm ${type === 'error' ? 'bg-brand-coral-soft text-brand-ink' : 'bg-brand-sand text-brand-ink'}`;
+  }
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!(form instanceof HTMLFormElement)) return;
+    const data = new FormData(form);
+    const nombre = (data.get('nombre') || '').toString().trim();
+    const email = (data.get('email') || '').toString().trim();
+    const mensaje = (data.get('mensaje') || '').toString().trim();
+    const website = (data.get('website') || '').toString().trim();
+
+    if (!nombre || !email || !mensaje || website) {
+      showMessage('Completá los campos obligatorios.', 'error');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showMessage('Ingresá un email válido.', 'error');
+      return;
+    }
+
+    const telefono = (data.get('telefono') || '').toString().trim();
+    const petSlugValue = (data.get('petSlug') || '').toString().trim();
+    const lines = [`Hola ${brandName},`, '', `Nombre: ${nombre}`, `Email: ${email}`];
+    if (telefono) lines.push(`Teléfono: ${telefono}`);
+    if (petSlugValue) lines.push(`Aviso: ${petSlugValue}`);
+    lines.push('', mensaje);
+
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+    showMessage('Te redirigimos a WhatsApp con tu mensaje.', 'ok');
+  });
+</script>

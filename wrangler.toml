@@ -1,0 +1,10 @@
+name = "astro-mimascota"
+compatibility_date = "2026-04-29"
+compatibility_flags = [ "nodejs_compat" ]
+
+[assets]
+directory = "./dist"
+
+[vars]
+PUBLIC_API_URL = "http://localhost:3010"
+PUBLIC_WHATSAPP_NUMBER = "5493430000000"
