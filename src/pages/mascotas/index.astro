@@ -2,12 +2,15 @@
 import PetCard from '../../components/PetCard.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { SITE } from '../../config/site';
+import { getApiUrl } from '../../lib/api';
 import { loadPets } from '../../lib/catalog';
 import { kindLabel, sizeLabel, statusLabel } from '../../lib/pets';
 
 export const prerender = false;
 
-const pets = await loadPets();
+const runtimeEnv = (Astro.locals as { runtime?: { env?: { PUBLIC_API_URL?: string } } }).runtime?.env;
+const apiUrl = getApiUrl(runtimeEnv);
+const pets = await loadPets(apiUrl);
 const cities = [...new Set(pets.map((p) => p.city))].sort((a, b) => a.localeCompare(b, 'es'));
 const zones = [...new Set(pets.map((p) => p.zone))].sort((a, b) => a.localeCompare(b, 'es'));
 const kinds = [...new Set(pets.map((p) => p.kind))];

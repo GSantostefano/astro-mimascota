@@ -3,11 +3,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PetCard from '../components/PetCard.astro';
 import ButtonLink from '../components/ui/ButtonLink.astro';
 import { SITE } from '../config/site';
+import { getApiUrl } from '../lib/api';
 import { loadFeaturedPets } from '../lib/catalog';
 
 export const prerender = false;
 
-const featured = await loadFeaturedPets();
+const runtimeEnv = (Astro.locals as { runtime?: { env?: { PUBLIC_API_URL?: string } } }).runtime?.env;
+const apiUrl = getApiUrl(runtimeEnv);
+const featured = await loadFeaturedPets(6, apiUrl);
 ---
 
 <BaseLayout title={`${SITE.name} | Mascotas perdidas y encontradas`}>

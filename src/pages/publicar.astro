@@ -1,12 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE, brandFull } from '../config/site';
-import { API_URL } from '../lib/api';
+import { getApiUrl } from '../lib/api';
 
 export const prerender = false;
 
+const runtimeEnv = (Astro.locals as { runtime?: { env?: { PUBLIC_API_URL?: string } } }).runtime?.env;
 const whatsappNumber = SITE.whatsappNumber;
-const apiUrl = API_URL;
+const apiUrl = getApiUrl(runtimeEnv);
 ---
 
 <BaseLayout
@@ -25,6 +26,7 @@ const apiUrl = API_URL;
   <div class="mx-auto max-w-2xl px-5 py-12">
     <p class="mb-6 rounded-xl border border-brand-line bg-brand-sand p-4 text-sm text-brand-muted">
       El aviso se guarda en la API (`POST /api/pets`). Si la API no está disponible, te ofrecemos abrir WhatsApp como respaldo.
+      <span class="mt-2 block text-xs opacity-70">API: {apiUrl}</span>
     </p>
 
     <form id="publish-form" class="space-y-4 rounded-2xl border border-brand-line bg-white p-6 shadow-sm" novalidate>

@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ListingImage from '../../components/ListingImage.astro';
 import ButtonLink from '../../components/ui/ButtonLink.astro';
 import { SITE } from '../../config/site';
+import { getApiUrl } from '../../lib/api';
 import { loadPetBySlug } from '../../lib/catalog';
 import {
   formatLastSeen,
@@ -17,8 +18,10 @@ import { buildPetWhatsAppLink } from '../../lib/whatsapp';
 
 export const prerender = false;
 
+const runtimeEnv = (Astro.locals as { runtime?: { env?: { PUBLIC_API_URL?: string } } }).runtime?.env;
+const apiUrl = getApiUrl(runtimeEnv);
 const { slug } = Astro.params;
-const pet = await loadPetBySlug(slug!);
+const pet = await loadPetBySlug(slug!, apiUrl);
 
 if (!pet) {
   return Astro.redirect('/mascotas');

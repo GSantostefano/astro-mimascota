@@ -6,5 +6,5 @@ compatibility_flags = [ "nodejs_compat" ]
 directory = "./dist"
 
 [vars]
-PUBLIC_API_URL = "http://localhost:3010"
+PUBLIC_API_URL = "https://action-safari-sit-queens.trycloudflare.com"
 PUBLIC_WHATSAPP_NUMBER = "5493430000000"
